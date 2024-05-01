@@ -118,10 +118,10 @@ int main() {
         u = dijkstra(g);
         if (u == 1) {
             printf("Yes\n");
-        }
+        }// If the function returns 1,which means it does be a probable Dijkstra Sequence,so print "Yes"
         else {
-            printf("NO\n");
-        }
+            printf("No\n");
+        }// If the function returns 0,which means it does not be a probable Dijkstra Sequence,so print "No"
     }
     return 0;
 }
