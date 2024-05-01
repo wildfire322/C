@@ -2,6 +2,8 @@
 #include<stdlib.h>
 #define inf 101
 int distance[1001];
+int test[1001];
+int visited[1001];
 typedef struct{
     int nv;
     int ne;
@@ -21,54 +23,54 @@ graph create(int nv,int ne){
     }
     return g;
 }
-typedef struct{
-    int data;
-    int dist;
-}node;
-typedef struct{
-    node a[1002];
-    int size;
-}minheap;
-minheap* create(){
-    minheap* h=(minheap*)malloc(sizeof(minheap));
-    h->size=0;
-    return h;
-}
-void insert(minheap* h,int data,int dist){
-    h->size++;
-    for(int i=h->size;i>1;i/=2){
-        if(h->a[i/2].dist>dist){
-            h->a[i].data=h->a[i/2].data;
-            h->a[i].dist=h->a[i/2].dist;
-        }else{
-           break;
+int findmin(graph g){
+    int min=inf;
+    int minindex=0;
+    for (int i = 0; i < g->nv; i++)
+    {
+        if (!visited[i]&&distance[i]<min)
+        {
+            min=distance[i];
+            minindex=i;
         }
+        
     }
-    h->a[h->size].data=data;
-    h->a[h->size].dist=dist;
-    return;
+    return minindex;
 }
-int delete(minheap* h){
-    int min=h->a[1].data;
-    int child,i;
-    h->size--;
-    int lastnum=h->a[h->size+1].data;
-    int lastdist=h->a[h->size+1].dist;
-    for( i=1;i*2<=h->size;i=child){
-        child=i*2;
-        if(child!=h->size&&h->a[child].dist>h->a[child+1].dist){
-            child++;
-        }
-        if(lastdist>h->a[child].dist){
-            h->a[i].data=h->a[child].data;
-            h->a[i].dist=h->a[child].dist;
-        }
-        else{
-            break;
-        }
+int dijkstra(graph g){
+    int kk,z;
+    for(int i=0;i<g->nv;i++){
+        scanf("%d",&kk);
+        distance[i]=inf;
+        visited[i]=0;
+        test[i]=kk-1;
     }
-    h->a[i].data=lastnum;
-    h->a[i].dist=lastdist;
+    distance[test[0]]=0;
+    visited[test[0]]=1;
+    for (int i = 0; i < g->nv; i++)
+    {
+        if (i!=test[0]&&g->e[test[0]][i]!=inf)
+        {
+            distance[i]=g->e[test[0]][i];
+        }
+        
+    }
+    for (int i = 1; i < g->nv; i++)
+    {
+        z=findmin(g);
+        if(distance[z]!=distance[test[i]]){
+            return 0;
+        }
+        visited[test[i]]=1;
+        for (int j = 0; j < g->nv; j++)
+        {
+            if (!visited[j]&&g->e[test[i]][j]!=inf&&distance[test[i]]+g->e[test[i]][j]<distance[j])
+            {
+                distance[j]=distance[test[i]]+g->e[test[i]][j];
+            }
+    }
+    }
+    return 1;
 }
 int main(){
     int m,n;
@@ -79,32 +81,18 @@ int main(){
         int a,b,c;
         scanf("%d %d %d",&a,&b,&c);
         g->e[a-1][b-1]=c;
+        g->e[b-1][a-1]=c;
     }
-    int k;
+    int k,u;
     scanf("%d",&k);
-    for (int i = 0; i < k; i++)
-    {
-        for(int j=0;j<g->nv;j++){
-            distance[j]=inf;
+    for(int i=0;i<k;i++){
+        u=dijkstra(g);
+        if(u==1){
+            printf("Yes\n");
         }
-        int start,l;
-        scanf("%d",&start);
-        distance[start-1]=0;
-        minheap* h=create();
-        insert(h,start-1,0);
-        while(h->size!=0){
-            scanf("%d",&l);
-            int u=delete(h);
-            if(l!=u+1){
-                printf("No\n");
-                break;
-            }
-            for(int v=0;v<g->nv;v++){
-                if(g->e[u][v]!=inf&&distance[v]>distance[u]+g->e[u][v]){
-                    distance[v]=distance[u]+g->e[u][v];
-                    insert(h,v,distance[v]);
-                }
-            }
+        else{
+            printf("NO\n");
         }
-}
+    }
+    return 0;
 }
